@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 
 if (!isset($_SESSION["user"])) {
@@ -16,81 +17,165 @@ $search = trim($_GET["search"] ?? "");
 $brand = trim($_GET["brand"] ?? "");
 $sort = trim($_GET["sort"] ?? "");
 
-$json = @file_get_contents("http://localhost/fashion-store/api/list.php");
+/* Fashion Products */
 
-if ($json !== false) {
+$productData = [
 
-    $data = json_decode($json, true);
+[
+"id"=>1,
+"name"=>"Semi-Stitched Lehenga Choli",
+"brand"=>"Fashion Store",
+"price"=>695,
+"category"=>"Women's Ethnic Wear",
+"fabric"=>"Georgette",
+"size"=>"Free Size",
+"color"=>"Maroon",
+"work"=>"Embroidery",
+"rating"=>"4.4",
+"discount"=>"30% OFF",
+"stock"=>"In Stock",
+"image"=>"assets/product1.jpg"
+],
 
-    if (
-        is_array($data) &&
-        isset($data["status"]) &&
-        $data["status"] == true &&
-        isset($data["products"])
-    ) {
+[
+"id"=>2,
+"name"=>"Women Solid Single Breasted Casual Blazer",
+"brand"=>"Fashion Store",
+"price"=>995,
+"category"=>"Women's Blazer",
+"fabric"=>"Polyester Blend",
+"size"=>"S, M, L, XL",
+"color"=>"Black",
+"work"=>"Solid",
+"rating"=>"4.5",
+"discount"=>"25% OFF",
+"stock"=>"In Stock",
+"image"=>"assets/product2.jpg"
+],
 
-        $productData = $data["products"];
+[
+"id"=>3,
+"name"=>"Milvia Cotton Embroidered Tunic with Trousers",
+"brand"=>"Milvia",
+"price"=>1599,
+"category"=>"Tunic Set",
+"fabric"=>"Cotton",
+"size"=>"S, M, L, XL",
+"color"=>"Blue",
+"work"=>"Embroidery",
+"rating"=>"4.6",
+"discount"=>"20% OFF",
+"stock"=>"In Stock",
+"image"=>"assets/product3.jpg"
+],
 
-    }
+[
+"id"=>4,
+"name"=>"Cottinfab Khaki Solid Blazer And Trouser Co-ord",
+"brand"=>"Cottinfab",
+"price"=>1199,
+"category"=>"Co-ord Set",
+"fabric"=>"Cotton Blend",
+"size"=>"S, M, L, XL",
+"color"=>"Khaki",
+"work"=>"Solid",
+"rating"=>"4.5",
+"discount"=>"28% OFF",
+"stock"=>"Limited Stock",
+"image"=>"assets/product4.jpg"
+],
+
+[
+"id"=>5,
+"name"=>"Designer Sharara Suit Set",
+"brand"=>"Fashion Store",
+"price"=>2199,
+"category"=>"Sharara Suit",
+"fabric"=>"Net",
+"size"=>"M, L, XL",
+"color"=>"Sage Green",
+"work"=>"Heavy Embroidery",
+"rating"=>"4.8",
+"discount"=>"35% OFF",
+"stock"=>"In Stock",
+"image"=>"assets/product5.jpg"
+],
+
+[
+"id"=>6,
+"name"=>"Special Heavy Embroidery Kurta Sharara Set",
+"brand"=>"Fashion Store",
+"price"=>2299,
+"category"=>"Kurta Sharara",
+"fabric"=>"Silk Blend",
+"size"=>"M, L,XL,XXL",
+"color"=>"Pink",
+"work"=>"Heavy Embroidery",
+"rating"=>"4.9",
+"discount"=>"40% OFF",
+"stock"=>"In Stock",
+"image"=>"assets/product6.jpg"
+]
+
+];
+
+if($search!=""){
+
+$productData=array_filter($productData,function($item)use($search){
+
+return stripos($item["name"],$search)!==false ||
+stripos($item["brand"],$search)!==false;
+
+});
 
 }
 
-if ($search != "") {
+if($brand!=""){
 
-    $productData = array_filter($productData, function ($item) use ($search) {
+$productData=array_filter($productData,function($item)use($brand){
 
-        return stripos($item["name"], $search) !== false ||
-               stripos($item["brand"], $search) !== false;
+return $item["brand"]==$brand;
 
-    });
-
-}
-
-if ($brand != "") {
-
-    $productData = array_filter($productData, function ($item) use ($brand) {
-
-        return $item["brand"] == $brand;
-
-    });
+});
 
 }
 
-if ($sort == "low") {
+if($sort=="low"){
 
-    usort($productData, function ($a, $b) {
+usort($productData,function($a,$b){
 
-        return $a["price"] <=> $b["price"];
+return $a["price"]<=>$b["price"];
 
-    });
-
-}
-
-if ($sort == "high") {
-
-    usort($productData, function ($a, $b) {
-
-        return $b["price"] <=> $a["price"];
-
-    });
+});
 
 }
 
-if (file_exists("orders.json")) {
+if($sort=="high"){
 
-    $orders = json_decode(file_get_contents("orders.json"), true);
+usort($productData,function($a,$b){
 
-    if (!is_array($orders)) {
+return $b["price"]<=>$a["price"];
 
-        $orders = [];
-
-    }
+});
 
 }
 
-$totalProducts = count($productData);
-$totalBrands = count(array_unique(array_column($productData, "brand")));
-$totalOrders = count($orders);
+if(file_exists("orders.json")){
+
+$orders=json_decode(file_get_contents("orders.json"),true);
+
+if(!is_array($orders)){
+
+$orders=[];
+
+}
+
+}
+
+$totalProducts=count($productData);
+$totalBrands=count(array_unique(array_column($productData,"brand")));
+$totalOrders=count($orders);
+
 ?>
 
 <!DOCTYPE html>
@@ -101,7 +186,7 @@ $totalOrders = count($orders);
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
 <title>Fashion Store Dashboard</title>
 
@@ -119,11 +204,7 @@ $totalOrders = count($orders);
 
 Welcome,
 
-<strong>
-
-<?php echo htmlspecialchars($_SESSION["user"]["name"]); ?>
-
-</strong>
+<strong><?php echo htmlspecialchars($_SESSION["user"]["name"]); ?></strong>
 
 </p>
 
@@ -136,8 +217,6 @@ Logout
 </header>
 
 <div class="container">
-
- <!-- Email id: sonalikumari14218@gmail.com -->
 
 <div class="sale-banner">
 
@@ -190,11 +269,17 @@ value="<?php echo htmlspecialchars($search); ?>"
 
 <option value="">All Brands</option>
 
-<option value="Fashion Store" <?php if($brand=="Fashion Store") echo "selected"; ?>>Fashion Store</option>
+<option value="Fashion Store" <?php if($brand=="Fashion Store") echo "selected"; ?>>
+Fashion Store
+</option>
 
-<option value="Milvia" <?php if($brand=="Milvia") echo "selected"; ?>>Milvia</option>
+<option value="Milvia" <?php if($brand=="Milvia") echo "selected"; ?>>
+Milvia
+</option>
 
-<option value="Cottinfab" <?php if($brand=="Cottinfab") echo "selected"; ?>>Cottinfab</option>
+<option value="Cottinfab" <?php if($brand=="Cottinfab") echo "selected"; ?>>
+Cottinfab
+</option>
 
 </select>
 
@@ -202,9 +287,13 @@ value="<?php echo htmlspecialchars($search); ?>"
 
 <option value="">Sort By Price</option>
 
-<option value="low" <?php if($sort=="low") echo "selected"; ?>>Low To High</option>
+<option value="low" <?php if($sort=="low") echo "selected"; ?>>
+Low To High
+</option>
 
-<option value="high" <?php if($sort=="high") echo "selected"; ?>>High To Low</option>
+<option value="high" <?php if($sort=="high") echo "selected"; ?>>
+High To Low
+</option>
 
 </select>
 
@@ -224,9 +313,9 @@ Search
 
 <div class="product-grid">
 
-<?php if (!empty($productData)) { ?>
+<?php if(!empty($productData)){ ?>
 
-<?php foreach ($productData as $item) { ?>
+<?php foreach($productData as $item){ ?>
 
 <div class="product-card">
 
@@ -247,7 +336,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Brand:</strong>
+<strong>Brand :</strong>
 
 <?php echo htmlspecialchars($item["brand"]); ?>
 
@@ -255,7 +344,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Category:</strong>
+<strong>Category :</strong>
 
 <?php echo htmlspecialchars($item["category"]); ?>
 
@@ -263,7 +352,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Fabric:</strong>
+<strong>Fabric :</strong>
 
 <?php echo htmlspecialchars($item["fabric"]); ?>
 
@@ -271,7 +360,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Size:</strong>
+<strong>Size :</strong>
 
 <?php echo htmlspecialchars($item["size"]); ?>
 
@@ -279,7 +368,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Color:</strong>
+<strong>Color :</strong>
 
 <?php echo htmlspecialchars($item["color"]); ?>
 
@@ -287,7 +376,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Work:</strong>
+<strong>Work :</strong>
 
 <?php echo htmlspecialchars($item["work"]); ?>
 
@@ -295,7 +384,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Rating:</strong>
+<strong>Rating :</strong>
 
 ⭐ <?php echo htmlspecialchars($item["rating"]); ?>
 
@@ -303,7 +392,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Stock:</strong>
+<strong>Stock :</strong>
 
 <?php echo htmlspecialchars($item["stock"]); ?>
 
@@ -311,7 +400,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <p>
 
-<strong>Discount:</strong>
+<strong>Discount :</strong>
 
 <?php echo htmlspecialchars($item["discount"]); ?>
 
@@ -331,11 +420,11 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <div class="not-found">
 
-<h2>No Fashion Products Found</h2>
+<h2>No Product Found</h2>
 
 <p>
 
-Please search with another product or brand.
+Try another product name.
 
 </p>
 
@@ -349,7 +438,7 @@ Please search with another product or brand.
 
 <div class="card">
 
-<h2>Place Your Order</h2>
+<h2>Place Order</h2>
 
 <form method="POST">
 
@@ -377,7 +466,7 @@ required
 <input
 type="text"
 name="address"
-placeholder="Delivery Address"
+placeholder="Address"
 required
 >
 
@@ -404,8 +493,7 @@ required
 
 <button
 type="submit"
-name="place_order"
->
+name="place_order">
 
 Place Order
 
@@ -422,7 +510,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["place_order"])) {
     $email = trim($_POST["email"]);
     $address = trim($_POST["address"]);
     $city = trim($_POST["city"]);
-
     $state = trim($_POST["state"]);
     $pincode = trim($_POST["pincode"]);
 
@@ -465,7 +552,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["place_order"])) {
             )
         );
 
-        $orderMessage = "✅ Fashion Order Placed Successfully.";
+        $orderMessage = "✅ Order Placed Successfully.";
 
     }
 
@@ -473,7 +560,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["place_order"])) {
 
 ?>
 
-<?php if ($orderMessage != "") { ?>
+<?php if($orderMessage!=""){ ?>
 
 <div class="success-box">
 
@@ -489,75 +576,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["place_order"])) {
 
 <h2>Order History</h2>
 
-<?php if (!empty($orders)) { ?>
+<?php if(!empty($orders)){ ?>
 
-<?php foreach (array_reverse($orders) as $order) { ?>
+<?php foreach(array_reverse($orders) as $order){ ?>
 
 <div class="product-card">
 
-<p>
+<p><strong>Name :</strong> <?php echo htmlspecialchars($order["customer_name"]); ?></p>
 
-<strong>Name:</strong>
+<p><strong>Mobile :</strong> <?php echo htmlspecialchars($order["mobile"]); ?></p>
 
-<?php echo htmlspecialchars($order["customer_name"]); ?>
+<p><strong>Email :</strong> <?php echo htmlspecialchars($order["email"]); ?></p>
 
-</p>
+<p><strong>Address :</strong> <?php echo htmlspecialchars($order["address"]); ?></p>
 
-<p>
+<p><strong>City :</strong> <?php echo htmlspecialchars($order["city"]); ?></p>
 
-<strong>Mobile:</strong>
+<p><strong>State :</strong> <?php echo htmlspecialchars($order["state"]); ?></p>
 
-<?php echo htmlspecialchars($order["mobile"]); ?>
+<p><strong>Pincode :</strong> <?php echo htmlspecialchars($order["pincode"]); ?></p>
 
-</p>
-
-<p>
-
-<strong>Email:</strong>
-
-<?php echo htmlspecialchars($order["email"]); ?>
-
-</p>
-
-<p>
-
-<strong>Address:</strong>
-
-<?php echo htmlspecialchars($order["address"]); ?>
-
-</p>
-
-<p>
-
-<strong>City:</strong>
-
-<?php echo htmlspecialchars($order["city"]); ?>
-
-</p>
-
-<p>
-
-<strong>State:</strong>
-
-<?php echo htmlspecialchars($order["state"]); ?>
-
-</p>
-
-<p>
-
-<strong>Pincode:</strong>
-
-<?php echo htmlspecialchars($order["pincode"]); ?>
-
-</p>
-
-<p>
-
-<strong>Order Date:</strong>
-
-<?php echo htmlspecialchars($order["date"]); ?>
-
-</p>
+<p><strong>Date :</strong> <?php echo htmlspecialchars($order["date"]); ?></p>
 
 </div>
 
@@ -587,7 +626,7 @@ Place your first fashion order now.
 
 <p>© 2026 Fashion Store Dashboard</p>
 
-<p>All Rights Reserved | Fashion Store</p>
+<p>All Rights Reserved | Created by Deepika Gupta</p>
 
 </footer>
 
