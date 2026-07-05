@@ -17,7 +17,6 @@ $search = trim($_GET["search"] ?? "");
 $brand = trim($_GET["brand"] ?? "");
 $sort = trim($_GET["sort"] ?? "");
 
-/* Fashion Products */
 
 $productData = [
 
@@ -218,9 +217,11 @@ Logout
 
 <div class="container">
 
+<!-- sonali3426kumari@gmail.com -->
+
 <div class="sale-banner">
 
-👗 Fashion Mega Sale - Up to 40% OFF
+  Fashion Mega Sale - Up to 40% OFF
 
 </div>
 
@@ -386,7 +387,7 @@ alt="<?php echo htmlspecialchars($item["name"]); ?>"
 
 <strong>Rating :</strong>
 
-⭐ <?php echo htmlspecialchars($item["rating"]); ?>
+  <?php echo htmlspecialchars($item["rating"]); ?>
 
 </p>
 
@@ -626,7 +627,7 @@ Place your first fashion order now.
 
 <p>© 2026 Fashion Store Dashboard</p>
 
-<p>All Rights Reserved | Created by Deepika Gupta</p>
+<p>All Rights Reserved | Created by Sonali Kumari</p>
 
 </footer>
 
